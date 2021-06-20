@@ -1,68 +1,39 @@
 package com.pages;
 
-import org.junit.Assert;
-import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.runner.BaseClass;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-public class HomePage extends BaseClass{
-	
-	public static  By SERACHBOX = By.xpath("//input[@id='searchtext_freetext_search_form']");
-	public static  By SERACHICON = By.xpath("//div[@id='freetext_search_form']//button");
-	public static  By MOREINFO = By.xpath("//button[@id='iterator_1_product_custom_more-info-button']");
-	public static  By PHONE = By.xpath("//a[@id='supplier-phone']");
-	public static  By DAYS = By.xpath("//span[@id='price-pin_days-num-01']");
+public class HomePage extends BasePage {
 
+    private final WebDriver driver;
 
-	public void verifyTitleInHomePage()
-	{
-		Assert.assertEquals("Home Page | Mail Travel", driver.getTitle());
-	}
+    public HomePage(WebDriver driver) {
+        super(driver);
+        this.driver = driver;
+    }
 
-	public void enterTextInSearchBox(String searchText)
-	{
-		//action.sendText(SERACHBOX,searchText);
-		action1.clickOnElement(SERACHBOX);
-		action1.sendText(SERACHICON, searchText);
-	
-	}
-	
-	public void searchText()
-	{
-		action1.sendText(SERACHBOX, "india");
-		action1.clickOnElement(SERACHICON);
+    @FindBy(xpath = "//div[@id='freetext_search_form']//input[@class='nbf_tpl_quicksearch_searchtext']")
+    private WebElement searchBox;
 
-	}
-	
-	public void clickOnMoreInfo()
-	{
-		waits1.waitForMilliSeconds(2000);
-		action1.clickOnElement(MOREINFO);
-	}
-	
-	public void verifyPhoneNumber()
-	{
-		waits1.waitForMilliSeconds(2000);
-		String phno = driver.findElement(By.xpath("//a[@id='supplier-phone']")).getAttribute("href");
-		System.out.println("phno :"+phno);
-		String st1_actual = phno.substring(4);
-		System.out.println("st1_actual = "+st1_actual);
-	}
-	
-	public void verifyDays_VerifyPrice()
-	{
-		WebElement days = driver.findElement(By.xpath("//span[@id='price-pin_days-num-01']"));
-		String daysText = days.getText();
-		System.out.println("daysText :"+daysText);
-		Assert.assertTrue(daysText.contains("9"));
-		
-		WebElement price = driver.findElement(By.xpath("//div[@id='price-pin_cc_newmarket']"));
-		String priceText = price.getText();
-		Assert.assertTrue(priceText.contains("£1,335"));
-		System.out.println("priceText :"+priceText);
+    @FindBy(xpath = "//div[@id='freetext_search_form']//div[@class='nbf_button']")
+    private WebElement searchButton;
 
-	}
-	
-	
+    @Override
+    public void assertPageIsDisplayed() {
+        assertThat(driver.getTitle(), is("Home Page | Mail Travel"));
+        acceptCookies();
+    }
+
+    public void iSearchFor(String value) {
+        new WebDriverWait(driver, 20).until(ExpectedConditions.visibilityOf(searchBox)).sendKeys(value);
+        searchButton.click();
+    }
+
 }
